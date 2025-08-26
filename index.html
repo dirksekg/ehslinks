@@ -82,6 +82,11 @@
           `;
           grid.appendChild(tile);
         });
+        })
+      .catch(err => {
+        console.error("Error loading sheet:", err);
+        document.getElementById("errorMessage").textContent =
+          "⚠️ Unable to load tiles. Please check code and sheet for errors.";
       });
   </script>
 </body>
