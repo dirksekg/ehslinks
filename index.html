@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,13 +52,6 @@
       margin: 10px 0 0;
       font-size: 14px;
     }
-
-    .error {
-      text-align: center;
-      color: red;
-      font-size: 16px;
-      margin-top: 40px;
-    }
   </style>
 </head>
 <body>
@@ -66,47 +60,28 @@
       <!-- Tiles will be inserted here -->
     </div>
   </div>
-  <div id="errorMessage" class="error"></div>
 
   <script>
-    // Replace with your Sheet ID
-    const sheetID = "YOUR_SHEET_ID";
-    const sheetURL = `https://docs.google.com/spreadsheets/d/${/1KzXncdoAUscQMQh-KyAo27qdZRUBznE372zr3An_vtY}/gviz/tq?tqx=out:json`;
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTETtBtIzAsbflRKGKoFKhjTpjirr07wbkfgzYiBZ4ygHdZD_FzcnK2SYHenYarHEDWDXAu7sJ5y7Fx/pub?output=csv";
 
     fetch(sheetURL)
-      .then(res => res.text())
-      .then(text => {
-        // Strip the extra JS wrapper Google adds
-        const json = JSON.parse(text.substring(47, text.length - 2));
-        const rows = json.table.rows;
+      .then(response => response.text())
+      .then(csvText => {
+        const rows = csvText.trim().split("\n").slice(1); // skip header
         const grid = document.getElementById("tileGrid");
 
         rows.forEach(row => {
-          // Expecting columns: Text | URL | Image
-          if (!row.c[0] || !row.c[1] || !row.c[2]) return;
-          const textVal = row.c[0].v;
-          const urlVal = row.c[1].v;
-          const imgVal = row.c[2].v;
-
+          const [text, url, image] = row.split(",");
           const tile = document.createElement("a");
-          tile.href = urlVal;
+          tile.href = url;
           tile.className = "tile";
           tile.target = "_self";
           tile.innerHTML = `
-            <img src="${imgVal}" alt="${textVal}" />
-            <p>${textVal}</p>
+            <img src="${image}" alt="${text}" />
+            <p>${text}</p>
           `;
           grid.appendChild(tile);
         });
-
-        if (!grid.hasChildNodes()) {
-          throw new Error("No valid rows found in the sheet.");
-        }
-      })
-      .catch(err => {
-        console.error("Error loading sheet:", err);
-        document.getElementById("errorMessage").textContent =
-          "⚠️ Unable to load tiles. Make sure your sheet is shared as 'Anyone with the link: Viewer'.";
       });
   </script>
 </body>
