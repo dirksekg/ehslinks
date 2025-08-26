@@ -62,7 +62,7 @@
   </div>
 
   <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTETtBtIzAsbflRKGKoFKhjTpjirr07wbkfgzYiBZ4ygHdZD_FzcnK2SYHenYarHEDWDXAu7sJ5y7Fx/pub?output=csv";
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTR7z-qVV9S2ttmrCow_8UjgGJEm_UiLxXNQl0yLFPjEIiLPzgHJzbBeo57HWbOQ02r-BHwK00kU2Wp/pub?output=csv";
 
     fetch(sheetURL)
       .then(response => response.text())
@@ -82,6 +82,15 @@
           `;
           grid.appendChild(tile);
         });
+        
+        if (!grid.hasChildNodes()) {
+          throw new Error("No valid rows found in the sheet.");
+        }
+      })
+      .catch(err => {
+        console.error("Error loading sheet:", err);
+        document.getElementById("errorMessage").textContent =
+          "⚠️ Unable to load tiles. Please check that the sheet is still published to the web and the link is correct.";
       });
   </script>
 </body>
