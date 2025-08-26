@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +22,7 @@
       display: grid;
       gap: 20px;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      max-width: calc((200px + 20px) * 5);
+      max-width: calc((200px + 20px) * 5); /* tile width + gap x 5 columns */
       width: 100%;
     }
 
@@ -51,13 +52,6 @@
       margin: 10px 0 0;
       font-size: 14px;
     }
-
-    .error {
-      text-align: center;
-      color: red;
-      font-size: 16px;
-      margin-top: 40px;
-    }
   </style>
 </head>
 <body>
@@ -66,32 +60,18 @@
       <!-- Tiles will be inserted here -->
     </div>
   </div>
-  <div id="errorMessage" class="error"></div>
 
   <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTETtBtIzAsbflRKGKoFKhjTpjirr07wbkfgzYiBZ4ygHdZD_FzcnK2SYHenYarHEDWDXAu7sJ5y7Fx/pubhtml";
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTETtBtIzAsbflRKGKoFKhjTpjirr07wbkfgzYiBZ4ygHdZD_FzcnK2SYHenYarHEDWDXAu7sJ5y7Fx/pub?output=csv";
 
     fetch(sheetURL)
-      .then(res => res.text())
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-        const rows = [...doc.querySelectorAll("table tbody tr")];
+      .then(response => response.text())
+      .then(csvText => {
+        const rows = csvText.trim().split("\n").slice(1); // skip header
         const grid = document.getElementById("tileGrid");
 
-        if (rows.length <= 1) throw new Error("No rows found in the sheet table.");
-
-        // Skip the header row
-        rows.slice(1).forEach(row => {
-          const cols = row.querySelectorAll("td");
-          if (cols.length < 3) return;
-
-          const text = cols[0].innerText.trim();
-          const url = cols[1].innerText.trim();
-          const image = cols[2].innerText.trim();
-
-          if (!text || !url || !image) return;
-
+        rows.forEach(row => {
+          const [text, url, image] = row.split(",");
           const tile = document.createElement("a");
           tile.href = url;
           tile.className = "tile";
@@ -102,15 +82,6 @@
           `;
           grid.appendChild(tile);
         });
-
-        if (!grid.hasChildNodes()) {
-          throw new Error("No valid tiles found in the sheet.");
-        }
-      })
-      .catch(err => {
-        console.error("Error loading sheet:", err);
-        document.getElementById("errorMessage").textContent =
-          "⚠️ Unable to load tiles. Please check that the sheet is published as a web page.";
       });
   </script>
 </body>
