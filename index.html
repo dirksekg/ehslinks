@@ -69,32 +69,32 @@
   <div id="errorMessage" class="error"></div>
 
   <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTETtBtIzAsbflRKGKoFKhjTpjirr07wbkfgzYiBZ4ygHdZD_FzcnK2SYHenYarHEDWDXAu7sJ5y7Fx/pub?output=csv";
+    // Replace with your Sheet ID
+    const sheetID = "YOUR_SHEET_ID";
+    const sheetURL = `https://docs.google.com/spreadsheets/d/${/1KzXncdoAUscQMQh-KyAo27qdZRUBznE372zr3An_vtY}/gviz/tq?tqx=out:json`;
 
     fetch(sheetURL)
-      .then(response => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        return response.text();
-      })
-      .then(csvText => {
-        // Parse CSV safely (handles commas inside quotes)
-        const rows = csvText.trim().split("\n").slice(1); // skip header
+      .then(res => res.text())
+      .then(text => {
+        // Strip the extra JS wrapper Google adds
+        const json = JSON.parse(text.substring(47, text.length - 2));
+        const rows = json.table.rows;
         const grid = document.getElementById("tileGrid");
 
         rows.forEach(row => {
-          const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g); 
-          if (!cols || cols.length < 3) return;
-
-          const [text, url, image] = cols.map(c => c.replace(/^"|"$/g, "")); // strip quotes
-          if (!url || !text) return;
+          // Expecting columns: Text | URL | Image
+          if (!row.c[0] || !row.c[1] || !row.c[2]) return;
+          const textVal = row.c[0].v;
+          const urlVal = row.c[1].v;
+          const imgVal = row.c[2].v;
 
           const tile = document.createElement("a");
-          tile.href = url;
+          tile.href = urlVal;
           tile.className = "tile";
           tile.target = "_self";
           tile.innerHTML = `
-            <img src="${image}" alt="${text}" />
-            <p>${text}</p>
+            <img src="${imgVal}" alt="${textVal}" />
+            <p>${textVal}</p>
           `;
           grid.appendChild(tile);
         });
@@ -106,7 +106,7 @@
       .catch(err => {
         console.error("Error loading sheet:", err);
         document.getElementById("errorMessage").textContent =
-          "⚠️ Unable to load tiles. Please check that the sheet is still published to the web and the link is correct.";
+          "⚠️ Unable to load tiles. Make sure your sheet is shared as 'Anyone with the link: Viewer'.";
       });
   </script>
 </body>
