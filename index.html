@@ -1,103 +1,37 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Homepage</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background-color: #f2f2f2;
-    }
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A fast, spreadsheet-managed launcher for frequently used web applications.">
+    <title>My Homepage</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <div class="state-message" id="statusMessage" role="status">Loading your links…</div>
+      <section class="tile-grid" id="tileGrid" aria-label="Frequently used web applications"></section>
 
-    .grid-wrapper {
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-    }
+      <div class="usage-tools">
+        <aside class="usage-panel" id="usagePanel" aria-labelledby="usageTitle" hidden>
+          <div class="usage-panel-header">
+            <h2 id="usageTitle">Click counts</h2>
+            <button class="close-button" id="closeUsage" type="button" aria-label="Close click counts">×</button>
+          </div>
+          <div class="usage-list" id="usageList"></div>
+          <button class="reset-all-button" id="resetAll" type="button" disabled>Reset all counts</button>
+        </aside>
 
-    .grid {
-      display: grid;
-      gap: 20px;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      max-width: calc((200px + 20px) * 7); /* tile width + gap x 7 columns */
-      width: 100%;
-    }
-
-    .tile {
-  background-color: white;
-  border-radius: 8px;
-  padding: 10px;
-  text-align: center;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  aspect-ratio: 4 / 3;
-  max-height: 140px;
-  text-decoration: none;
-  color: black;
-
-  /* Added for hover animation */
-  transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
-}
-
-.tile:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
-  background-color: rgba(255, 255, 255, 0.85); /* still white, just softer */
-}
-
-.tile img {
-  max-width: 100%;
-  max-height: 100px;
-  object-fit: contain;
-}
-
-.tile p {
-  margin: 10px 0 0;
-  font-size: 14px;
-}
-
-  </style>
-</head>
-<body>
-  <div class="grid-wrapper">
-    <div class="grid" id="tileGrid">
-      <!-- Tiles will be inserted here -->
-    </div>
-  </div>
-
-  <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTETtBtIzAsbflRKGKoFKhjTpjirr07wbkfgzYiBZ4ygHdZD_FzcnK2SYHenYarHEDWDXAu7sJ5y7Fx/pub?output=csv";
-
-    fetch(sheetURL)
-      .then(response => response.text())
-      .then(csvText => {
-        const rows = csvText.trim().split("\n").slice(1); // skip header
-        const grid = document.getElementById("tileGrid");
-
-        rows.forEach(row => {
-          const [text, url, image] = row.split(",");
-          const tile = document.createElement("a");
-          tile.href = url;
-          tile.className = "tile";
-          tile.target = "_self";
-          tile.innerHTML = `
-            <img src="${image}" alt="${text}" />
-            <p>${text}</p>
-          `;
-          grid.appendChild(tile);
-        });
-        })
-      .catch(err => {
-        console.error("Error loading sheet:", err);
-        document.getElementById("errorMessage").textContent =
-          "⚠️ Unable to load tiles. Please check code and sheet for errors.";
-      });
-  </script>
-</body>
+        <button
+          class="usage-toggle"
+          id="usageToggle"
+          type="button"
+          aria-label="View click counts"
+          aria-expanded="false"
+          aria-controls="usagePanel"
+        ><span aria-hidden="true">⚙</span></button>
+      </div>
+    </main>
+  </body>
 </html>
